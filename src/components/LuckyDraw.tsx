@@ -14,6 +14,7 @@ export default function LuckyDraw({ initialNames = [] }: LuckyDrawProps) {
   const [currentName, setCurrentName] = useState<string>('???');
   const [isDrawing, setIsDrawing] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
+  const [drawCount, setDrawCount] = useState<number>(1);
   
   // Audio refs (optional, placeholders for now)
   // const tickSound = useRef(new Audio('/tick.mp3'));
@@ -69,6 +70,11 @@ export default function LuckyDraw({ initialNames = [] }: LuckyDrawProps) {
       return;
     }
 
+    if (drawCount > eligible.length) {
+      alert(`Only ${eligible.length} eligible participants available. Can't draw ${drawCount} winners.`);
+      return;
+    }
+
     setIsDrawing(true);
     setShowConfetti(false);
     
@@ -90,12 +96,16 @@ export default function LuckyDraw({ initialNames = [] }: LuckyDrawProps) {
   };
 
   const finalizeDraw = (eligible: string[]) => {
-    // Pick a true random winner from the eligible list
-    const winnerIndex = Math.floor(Math.random() * eligible.length);
-    const winner = eligible[winnerIndex];
+    // Pick random winners from the eligible list
+    const selectedWinners: string[] = [];
+    const shuffled = [...eligible].sort(() => Math.random() - 0.5);
     
-    setCurrentName(winner);
-    setWinners(prev => [winner, ...prev]);
+    for (let i = 0; i < drawCount && i < shuffled.length; i++) {
+      selectedWinners.push(shuffled[i]);
+    }
+    
+    setCurrentName(selectedWinners.length === 1 ? selectedWinners[0] : selectedWinners.join(' • '));
+    setWinners(prev => [...selectedWinners, ...prev]);
     setIsDrawing(false);
     setShowConfetti(true);
     fireConfetti();
@@ -155,6 +165,17 @@ export default function LuckyDraw({ initialNames = [] }: LuckyDrawProps) {
               className="flex-1 w-full bg-slate-900/50 border-2 border-slate-700 rounded-xl p-4 text-sm font-mono focus:border-indigo-500 focus:ring-0 transition-colors resize-none text-slate-300 placeholder:text-slate-600"
               spellCheck={false}
             />
+            <div className="mt-4 flex flex-col gap-2">
+              <label className="text-xs font-mono text-slate-400">Draw per spin</label>
+              <input
+                type="number"
+                min="1"
+                max={participants.length}
+                value={drawCount}
+                onChange={(e) => setDrawCount(Math.max(1, parseInt(e.target.value) || 1))}
+                className="w-full bg-slate-900/50 border-2 border-slate-700 rounded-lg p-2 text-sm text-slate-300 focus:border-indigo-500 focus:ring-0 transition-colors"
+              />
+            </div>
             <p className="text-xs text-slate-500 mt-2 text-center">
               Paste your list here
             </p>
