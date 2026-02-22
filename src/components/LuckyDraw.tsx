@@ -169,10 +169,10 @@ export default function LuckyDraw({ initialNames = [] }: LuckyDrawProps) {
               <label className="text-xs font-mono text-slate-400">Draw per spin</label>
               <input
                 type="number"
-                min="1"
+                min="0"
                 max={participants.length}
                 value={drawCount}
-                onChange={(e) => setDrawCount(Math.max(1, parseInt(e.target.value) || 1))}
+                onChange={(e) => setDrawCount(Math.max(0, parseInt(e.target.value) || 0))}
                 className="w-full bg-slate-900/50 border-2 border-slate-700 rounded-lg p-2 text-sm text-slate-300 focus:border-indigo-500 focus:ring-0 transition-colors"
               />
             </div>
